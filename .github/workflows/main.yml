@@ -46,3 +46,12 @@ jobs:
         with:
           name: Build
           path: build
+          
+      # Publish
+      - uses: manleydev/butler-publish-itchio-action@master
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.ITCH_IO_API_KEY }}
+          CHANNEL: HTML
+          ITCH_GAME: test-cicd
+          ITCH_USER: light-with-blocks
+          PACKAGE: build
