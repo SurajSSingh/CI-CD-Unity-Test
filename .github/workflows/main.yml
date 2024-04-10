@@ -54,4 +54,4 @@ jobs:
           CHANNEL: HTML
           ITCH_GAME: test-cicd
           ITCH_USER: light-with-blocks
-          PACKAGE: build
+          PACKAGE: build/WebGL
