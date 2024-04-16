@@ -1,16 +1,25 @@
-name: Build and Publish
+name: Deploy Game
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
 
 jobs:
-  build:
-    name: Build my project ✨
-    runs-on: ubuntu-latest
+ build:
+    name: Build for ${{ matrix.platform }}
+    runs-on: windows-latest
+    
+    strategy:
+      matrix:
+        # Build for both Windows and Android
+        platform: [StandaloneWindows64, Android]
+    
     steps:
       # Checkout
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: 'deploy'
           lfs: true
 
       # Cache
@@ -21,16 +30,6 @@ jobs:
           restore-keys: |
             Library-
 
-      # # Test
-      # - name: Run tests
-      #   uses: game-ci/unity-test-runner@v4
-      #   env:
-      #     UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-      #     UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-      #     UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-      #   with:
-      #     githubToken: ${{ secrets.GITHUB_TOKEN }}
-
       # Build
       - name: Build project
         uses: game-ci/unity-builder@v4
@@ -39,19 +38,48 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: WebGL
+          targetPlatform: ${{ matrix.platform }}
 
       # Output
       - uses: actions/upload-artifact@v3
         with:
-          name: Build
-          path: build
-          
+          name: Build-${{ matrix.platform }}
+          path: build/${{ matrix.platform }}
+
+ publish:
+    name: Publish to Itch.io
+    needs: build
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        # Build for both Windows and Android
+        platform: [StandaloneWindows64, Android]
+    
+    steps:
+      # Download
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: Build-${{ matrix.platform }}
+          path: build/${{ matrix.platform }}
+
+      # Zip Build Artifacts
+      - name: Zip Build Artifacts
+        run: |
+          zip -r build_${{ matrix.platform }}.zip build/${{ matrix.platform }} -x "*DoNotShip*" -x "*DontShip*"
+
+      # Zip upload
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Upload Zipped Build for ${{ matrix.platform }}
+          path: build_${{ matrix.platform }}.zip
+
       # Publish
       - uses: manleydev/butler-publish-itchio-action@master
         env:
           BUTLER_CREDENTIALS: ${{ secrets.ITCH_IO_API_KEY }}
-          CHANNEL: HTML
-          ITCH_GAME: test-cicd
-          ITCH_USER: light-with-blocks
-          PACKAGE: build/WebGL
+          CHANNEL: ${{ matrix.platform == 'Windows' && 'win' || 'android' }}
+          ITCH_GAME: ${{ env.ITCH_GAME }}
+          ITCH_USER: ${{ env.ITCH_USER }}
+          PACKAGE: build/${{ matrix.platform }}
