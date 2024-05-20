@@ -12,9 +12,9 @@ jobs:
     
     strategy:
       matrix:
-        # Build for both Windows and Android
-        platform: [StandaloneWindows64, Android]
-    
+        # Build for Windows, Android, and Web
+        platform: [StandaloneWindows64, Android, WebGL]
+
     steps:
       # Checkout
       - name: Checkout repository
