@@ -14,8 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        # Publish for Windows, Android, and Web
-        platform: [StandaloneWindows64, Android, WebGL]
+        # Publish for MacOS
+        platform: [StandaloneOSX]
     
     steps:
       # Download

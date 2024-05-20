@@ -8,12 +8,12 @@ on:
 jobs:
  build:
     name: Build for ${{ matrix.platform }}
-    runs-on: windows-latest
+    runs-on: macos-latest
     
     strategy:
       matrix:
-        # Build for Windows, Android, and Web
-        platform: [StandaloneWindows64, Android, WebGL]
+        # Build for just MacOS
+        platform: [StandaloneOSX]
 
     steps:
       # Checkout
