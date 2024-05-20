@@ -2,19 +2,19 @@ name: Build Game
 
 on:
   pull_request:
-    types: [opened]
+    types: [opened, reopened]
     branches: [main]
 
 jobs:
  build:
     name: Build for ${{ matrix.platform }}
-    runs-on: windows-latest
+    runs-on: macos-latest
     
     strategy:
       matrix:
-        # Build for both Windows and Android
-        platform: [StandaloneWindows64, Android]
-    
+        # Build for just MacOS
+        platform: [StandaloneOSX]
+
     steps:
       # Checkout
       - name: Checkout repository

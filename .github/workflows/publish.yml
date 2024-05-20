@@ -14,8 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        # Build for both Windows and Android
-        platform: [StandaloneWindows64, Android]
+        # Publish for MacOS
+        platform: [StandaloneOSX]
     
     steps:
       # Download
